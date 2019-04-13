@@ -290,7 +290,7 @@ unsigned int loadCubemap(vector<std::string> faces)
 /// INITIALISE ///
 void init(void) {
 
-
+	
 	//
 	//if (!BASS_Init(1, 44100, BASS_DEVICE_SPEAKERS, 0, NULL))		//Initalise Audio
 	//	cout << "Can't initialize device";
@@ -426,18 +426,18 @@ void rotateCameraAroundPlayer(float angle) {
 }
 
 void update(void) {
-
+	
 
 const	Uint8 *keys = SDL_GetKeyboardState(NULL);
 
 if (keys[SDL_SCANCODE_9])
 {
-	Audio::LoadSample("bulletsound1.wav");
+	Audio::LoadSample("Audio/GTARadio.wav");
 }
 
 if (keys[SDL_SCANCODE_8])
 {
-	Audio::LoadSample("car_idle.wav");
+	Audio::LoadSample("Audio/CarAudio.wav");
 }
 if (keys[SDL_SCANCODE_P]) {
 	BASS_Pause();
@@ -445,6 +445,18 @@ if (keys[SDL_SCANCODE_P]) {
 
 if (keys[SDL_SCANCODE_R]) {
 	BASS_Start();
+}
+
+if (keys[SDL_SCANCODE_W])
+{
+	Audio::LoadSample("Audio/CarAudio.wav");
+	eye = moveForward(eye, r, 0.1f);
+}
+
+if (keys[SDL_SCANCODE_S])
+{
+	eye = moveForward(eye, r, -0.1f);
+	Audio::LoadSample("Audio/CarAudio.wav");
 }
 
 if (freeCamera)
@@ -592,11 +604,11 @@ void draw(SDL_Window * window) {
 
 
 // Program entry point - SDL manages the actual WinMain entry point for us
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {	
     SDL_Window * hWindow; // window handle
     SDL_GLContext glContext; // OpenGL context handle
     hWindow = setupRC(glContext); // Create window and render context 
-
+	
 	// Required on Windows *only* init GLEW to access OpenGL beyond 1.1
 	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
@@ -607,7 +619,7 @@ int main(int argc, char *argv[]) {
 	cout << glGetString(GL_VERSION) << endl;
 
 	init();
-
+	Audio::LoadSample("Audio/GTARadio.wav");
 	bool running = true; // set running to true
 	SDL_Event sdlEvent;  // variable to detect SDL events
 	while (running)	{	// the event loop
