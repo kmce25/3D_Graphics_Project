@@ -30,10 +30,11 @@ void Audio::LoadSample(char * filename)
 		if (!BASS_Set3DPosition(position, NULL, NULL, NULL))
 		cout << "Could not set the 3d position of the listener" << endl;
 																	// Checks if a sample, stream, or MOD music is active or stalled
-		if (BASS_ChannelIsActive(ch) == BASS_ACTIVE_STOPPED)
-		{
-			BASS_ChannelPlay(ch, true);															// Starts (or resumes) playback of a sample, stream, MOD music, or recording.
-		}
+		/*if (BASS_ChannelIsActive(ch) == BASS_ACTIVE_STOPPED)
+		{*/
+			BASS_ChannelPlay(ch, FALSE);															// Starts (or resumes) playback of a sample, stream, MOD music, or recording.
+			
+		/*}*/
 
 		
 }
