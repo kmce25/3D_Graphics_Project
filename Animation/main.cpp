@@ -20,6 +20,7 @@
 #include <SDL.h>
 #include "bass.h"
 #include "Audio.h"
+#include <stdlib.h>  
 
 using namespace std;
 
@@ -103,8 +104,8 @@ GLuint shaderProgram;
 bool freeCamera = false;
 
 //Hobgoblin
-//glm::vec3 hobgoblinPos(0, 1.2f, 0);
-glm::vec3 Car(0.0, 1.2, 0.0);
+glm::vec3 hobgoblinPos(-15, 1.2f, 0);
+glm::vec3 Car(0.0, 0.2, 0.0);
 
 //Starts Standing
 
@@ -158,6 +159,8 @@ rt3d::materialStruct material1 = {
 /// MD2 ///
 md2model tmpModel;
 md2model CarModel;
+md2model BuildingModel;
+md2model SmallBuildingModel;
 int currentAnim = 0;
 
 /// AUDIO ///
@@ -307,7 +310,12 @@ void init(void) {
 	textures[0] = loadBitmap("fabric.bmp");
 	meshObjects[0] = rt3d::createMesh(verts.size()/3, verts.data(), nullptr, norms.data(), tex_coords.data(), size, indices.data());
 
-	
+
+	//rt3d::loadObj("BuildingObjTest.obj", verts, tex_coords, norms, indices);
+	//textures[4] = loadBitmap("Building2Texture1.bmp");
+	//meshObjects[4] = rt3d::createMesh(verts.size() / 3, verts.data(), nullptr, tex_coords.data(), norms.data(), size, indices.data());
+
+
 	//////////skybox
 	glUseProgram(shaderSkybox);
 	// skybox VAO
@@ -342,6 +350,15 @@ void init(void) {
 	meshObjects[2] = CarModel.ReadMD2Model("CarModel.MD2");
 	md2VertCount1 = CarModel.getVertDataCount();
 
+
+	meshObjects[4] = BuildingModel.ReadMD2Model("./resources/md2models/Buildings/Building.MD2");
+	meshObjects[5] = SmallBuildingModel.ReadMD2Model("./resources/md2models/Buildings/SmallBuilding.MD2");
+	md2VertCount1 = BuildingModel.getVertDataCount();
+	md2VertCount1 = SmallBuildingModel.getVertDataCount();
+	textures[4] = loadBitmap("./resources/textures/Building/Building1Texture1.bmp");
+	textures[5] = loadBitmap("./resources/textures/Building/BuildingCatTexture.bmp");
+	textures[6] = loadBitmap("./resources/textures/Building/Building3Texture.bmp");
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -358,16 +375,6 @@ glm::vec3 moveRight(glm::vec3 pos, GLfloat angle, GLfloat d) {
 
 void rotateCameraAroundPlayer(float angle) {
 	r += angle;
-	
-	//eye.x -= hobgoblinPos.x;
-	//eye.z -= hobgoblinPos.z;
-
-	//float newX = eye.x*std::cos(-angle*DEG_TO_RADIAN) +eye.z*std::sin(-angle*DEG_TO_RADIAN);
-	//float newZ = -eye.x*std::sin(-angle*DEG_TO_RADIAN) +eye.z*std::cos(-angle*DEG_TO_RADIAN);
-
-	//eye.x = (newX + hobgoblinPos.x);
-	//eye.z = (newZ + hobgoblinPos.z);
-
 	eye.x -= Car.x;
 	eye.z -= Car.z;
 
@@ -378,7 +385,16 @@ void rotateCameraAroundPlayer(float angle) {
 	eye.z = (newZ + Car.z);
 }
 
+void NPCMovement()
+{
+	glm::vec3(hobgoblinPos.x += 0.2, hobgoblinPos.y, hobgoblinPos.z);	
+	
+	glm::vec3(hobgoblinPos.x -= 0.2, hobgoblinPos.y, hobgoblinPos.z);
+}
+
 void update(void) {
+
+	NPCMovement();
 	
 
 const	Uint8 *keys = SDL_GetKeyboardState(NULL);
@@ -431,13 +447,6 @@ if (freeCamera)
 }
 else
 {
-	/*if (keys[SDL_SCANCODE_W]) { hobgoblinPos = moveForward(hobgoblinPos, r, 0.1f);eye = moveForward(eye, r, 0.1f); currentAnim = 1; }
-	if (!keys[SDL_SCANCODE_W]) { if (currentAnim = 1) { currentAnim = 0; } }
-	if (keys[SDL_SCANCODE_S]) { hobgoblinPos = moveForward(hobgoblinPos, r, -0.1f);eye = moveForward(eye, r, -0.1f); }
-	if (keys[SDL_SCANCODE_A]) { rotateCameraAroundPlayer(-1.5f) ;	}
-	if (keys[SDL_SCANCODE_D]) { rotateCameraAroundPlayer(1.5f); }
-	if (keys[SDL_SCANCODE_R]) { eyeReturn = eye; rReturn = r; freeCamera = true; }*/
-
 
 	if (keys[SDL_SCANCODE_W]) { Car = moveForward(Car, r, 0.1f); eye = moveForward(eye, r, 0.1f); currentAnim = 1; }
 	if (!keys[SDL_SCANCODE_W]) { if (currentAnim  = 1) { currentAnim = 0; } }
@@ -447,9 +456,6 @@ else
 	if (keys[SDL_SCANCODE_R]) { eyeReturn = eye; rReturn = r; freeCamera = true; }
 }
 
-//cout << "Minieye	X: " << Minieye.x << "	Y: " << Minieye.y << "	Z: " << Minieye.z << endl;
-//cout << "Hobgoblin	X: " << Car.x << "	Y: " << Car.y << "	Z: " << Car.z << endl;
-//cout << "Hobgoblin	X: " << hobgoblinPos.x << "	Y: " << hobgoblinPos.y << "	Z: " << hobgoblinPos.z << endl;
 
 	if ( keys[SDL_SCANCODE_1] ) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -557,7 +563,24 @@ void draw(SDL_Window * window) {
 	//mvStack.pop();
 	//glCullFace(GL_BACK);
 
-	//Draw the alien
+	//Draw npc
+
+	glm::vec4 hobgoblinLightPos(hobgoblinPos.x, hobgoblinPos.y + 1.0, hobgoblinPos.z, 1.0f);
+	glCullFace(GL_FRONT);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	rt3d::materialStruct tmpMaterial = material1;
+	rt3d::setMaterial(shaderProgram, tmpMaterial);
+	mvStack.push(mvStack.top());
+	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(hobgoblinPos.x, hobgoblinPos.y, hobgoblinPos.z));
+	mvStack.top() = glm::rotate(mvStack.top(), float(90.0f*DEG_TO_RADIAN), glm::vec3(-1.0f, 0.0f, 0.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float((r-90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, -1.0f));
+	mvStack.top() = glm::scale(mvStack.top(),glm::vec3(scale*0.05, scale*0.05, scale*0.05));
+	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+	rt3d::drawMesh(meshObjects[1], md2VertCount, GL_TRIANGLES);
+	mvStack.pop();
+	glCullFace(GL_BACK);
+
+	//Draw the car
 	glCullFace(GL_FRONT);
 	glBindTexture(GL_TEXTURE_2D, textures[2]);
 	rt3d::materialStruct tmpMaterial1 = material1;
@@ -571,64 +594,54 @@ void draw(SDL_Window * window) {
 	mvStack.pop();
 	glCullFace(GL_BACK);
 
-	/*
-	// remember to use at least one pop operation per push...
-	mvStack.pop(); // initial matrix
-	glDepthMask(GL_TRUE);
-
-
-
-
-	projection = glm::perspective(float(90.0f*DEG_TO_RADIAN), 80.0f / 60.0f, 1.0f, 50.0f);
-	rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(projection));
-
-	modelview=glm::mat4(1.0); // set base position for scene
-	mvStack.push(modelview);
-
-	//Miniat = moveForward(Minieye, r, 1.0f);
-	Miniat = at;
-	Minieye = glm::vec3(hobgoblinPos.x, hobgoblinPos.y + 19.0f, hobgoblinPos.z);
-	mvStack.top() = glm::lookAt(Minieye, Miniat, Miniup);
-
-	// draw a cube for ground plane for the Minimap
-	glBindTexture(GL_TEXTURE_2D, textures[0]);
-	mvStack.push(mvStack.top());
-	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(0.0f, -0.1f, 0.0f));
-	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(20.0f, 0.1f, 20.0f));
-	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-	rt3d::setMaterial(shaderProgram, material0);
-	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
-	mvStack.pop();
-
-
-	// draw the hobgoblin for the Minimap
+	//Draw the building
 	glCullFace(GL_FRONT);
-	glBindTexture(GL_TEXTURE_2D, textures[1]);
-	rt3d::setMaterial(shaderProgram, tmpMaterial);
+	glBindTexture(GL_TEXTURE_2D, textures[4]);
 	mvStack.push(mvStack.top());
-	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(hobgoblinPos.x, hobgoblinPos.y, hobgoblinPos.z));
-	mvStack.top() = glm::rotate(mvStack.top(), float(90.0f*DEG_TO_RADIAN), glm::vec3(-1.0f, 0.0f, 0.0f));
-	mvStack.top() = glm::rotate(mvStack.top(), float((r - 90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, -1.0f));
-	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(scale*0.05, scale*0.05, scale*0.05));
+	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(10.f, 0.0, 1.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float(0.0f*DEG_TO_RADIAN), glm::vec3(-1.0f, 0.0f, 0.0f));
+	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(scale*2.0f, scale*2.0f, scale*2.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-	rt3d::drawMesh(meshObjects[1], md2VertCount, GL_TRIANGLES);
+	rt3d::drawMesh(meshObjects[4], md2VertCount, GL_TRIANGLES);
 	mvStack.pop();
 	glCullFace(GL_BACK);
 
-	//Draw the alien for the Minimap
+	//Draw the building
 	glCullFace(GL_FRONT);
-	glBindTexture(GL_TEXTURE_2D, textures[2]);
-	rt3d::setMaterial(shaderProgram, tmpMaterial1);
+	glBindTexture(GL_TEXTURE_2D, textures[5]);
 	mvStack.push(mvStack.top());
-	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(5.0f, 1.2f, -5.0f));
-	mvStack.top() = glm::rotate(mvStack.top(), float(90.0f*DEG_TO_RADIAN), glm::vec3(-1.0f, 0.0f, 0.0f));
-	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(scale*0.05, scale*0.05, scale*0.05));
+	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(50.f, 0.0, 1.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float(0.0f*DEG_TO_RADIAN), glm::vec3(-1.0f, 0.0f, 0.0f));
+	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(scale*2.0f, scale*2.0f, scale*2.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-	rt3d::drawMesh(meshObjects[2], md2VertCount, GL_TRIANGLES);
+	rt3d::drawMesh(meshObjects[4], md2VertCount, GL_TRIANGLES);
 	mvStack.pop();
 	glCullFace(GL_BACK);
 
-*/
+
+	//Draw the building
+	glCullFace(GL_FRONT);
+	glBindTexture(GL_TEXTURE_2D, textures[6]);
+	mvStack.push(mvStack.top());
+	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(30.f, 0.0, 30.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float(0.0f*DEG_TO_RADIAN), glm::vec3(-1.0f, 0.0f, 0.0f));
+	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(scale*2.0f, scale*2.0f, scale*2.0f));
+	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+	rt3d::drawMesh(meshObjects[4], md2VertCount, GL_TRIANGLES);
+	mvStack.pop();
+	glCullFace(GL_BACK);
+
+	//Draw the building
+	glCullFace(GL_FRONT);
+	glBindTexture(GL_TEXTURE_2D, textures[6]);
+	mvStack.push(mvStack.top());
+	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(-10.0, 0.0, 30.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float(0.0f*DEG_TO_RADIAN), glm::vec3(-1.0f, 0.0f, 0.0f));
+	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(scale*2.0f, scale*2.0f, scale*2.0f));
+	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+	rt3d::drawMesh(meshObjects[5], md2VertCount, GL_TRIANGLES);
+	mvStack.pop();
+	glCullFace(GL_BACK);
 
 	mvStack.pop();
 	SDL_GL_SwapWindow(window); // swap buffers
