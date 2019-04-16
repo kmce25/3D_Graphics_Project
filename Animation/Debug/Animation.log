@@ -1,3 +1,6 @@
-﻿  Audio.cpp
-h:\uni\real_time_3d\rt3d\realtime3d\dev\lab2\wk2\lab\3dgraphicsprojectgit\animation\audio.cpp(27): warning C4305: 'argument': truncation from 'double' to 'float'
+﻿  main.cpp
+h:\uni\real_time_3d\rt3d\realtime3d\dev\lab2\wk2\lab\3dgraphicsprojectgit\animation\md2model.h(40): warning C4005: 'WIN32': macro redefinition
+  h:\uni\real_time_3d\rt3d\realtime3d\dev\lab2\wk2\lab\3dgraphicsprojectgit\animation\md2model.h(40): note: command-line arguments:  see previous definition of 'WIN32'
+h:\uni\real_time_3d\rt3d\realtime3d\dev\lab2\wk2\lab\3dgraphicsprojectgit\animation\main.cpp(374): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+h:\uni\real_time_3d\rt3d\realtime3d\dev\lab2\wk2\lab\3dgraphicsprojectgit\animation\main.cpp(375): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Animation.vcxproj -> H:\Uni\Real_Time_3D\rt3d\RealTime3D\dev\Lab2\wk2\lab\3DGraphicsProjectGit\Debug\Animation.exe

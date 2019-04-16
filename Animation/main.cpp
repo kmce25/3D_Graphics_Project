@@ -290,58 +290,9 @@ unsigned int loadCubemap(vector<std::string> faces)
 /// INITIALISE ///
 void init(void) {
 
-	
-	//
-	//if (!BASS_Init(1, 44100, BASS_DEVICE_SPEAKERS, 0, NULL))		//Initalise Audio
-	//	cout << "Can't initialize device";
-
-	//samples = new HSAMPLE[2];
-	//samples[0] = loadSample("bulletsound1.wav");
-	//samples[1] = loadSample("car_idle.wav");
-
-	//cout << "Press 1 and 2 to play sounds." << endl;
-	//cout << "Press P and R to pause and resume." << endl;
-
-
-
-	// For this simple example we'll be using the most basic of shader programs
 	shaderSkybox = rt3d::initShaders("skybox.vert", "skybox.frag"); 
 	shaderProgram = rt3d::initShaders("phong-tex.vert","phong-tex.frag");
 	
-	/*
-	// MiniMapShader = rt3d::initShaders("minimap.vert", "minimap.frag");
-
-	/// MINI MAP		FBO & Texture declared above. 
-
-	glUseProgram(MiniMapShader);
-	
-	glGenFramebuffers(1, &FBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-	glGenTextures(1, &SceneTexture);
-	glBindTexture(GL_TEXTURE_2D, SceneTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, SceneTexture, 0);				//Assign texture to buffer
-	
-	unsigned int RBO;																							//Render buffer object
-	glGenRenderbuffers(1, &RBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA4, 800, 600);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, RBO);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-	meshObjects[5] = rt3d::createMesh(CubeVertCount, CubeVerts, nullptr, CubeNorms, cubeTexCoords, cubeIndexCount, cubeIndices);
-
-	/// MINI MAP END ///
-	*/
 	glUseProgram(shaderProgram);
 	rt3d::setLight(shaderProgram, light0);
 	rt3d::setMaterial(shaderProgram, material0);
@@ -381,17 +332,19 @@ void init(void) {
 		std::string("./resources/textures/skybox/back.bmp")
 	};
 	cubemapTexture = loadCubemap(faces);
-	////
-	
 
+
+	textures[1] = loadBitmap("hobgoblin2.bmp");
+	meshObjects[1] = tmpModel.ReadMD2Model("tris.MD2");
+	md2VertCount = tmpModel.getVertDataCount();
 
 	textures[2] = loadBitmap("Car.bmp");
 	meshObjects[2] = CarModel.ReadMD2Model("CarModel.MD2");
 	md2VertCount1 = CarModel.getVertDataCount();
-	
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 glm::vec3 moveForward(glm::vec3 pos, GLfloat angle, GLfloat d) {
@@ -520,24 +473,24 @@ else
 void draw(SDL_Window * window) {
 	// clear the screen
 	glEnable(GL_CULL_FACE);
-	glClearColor(0.5f,0.5f,0.5f,1.0f);
-	glClear(GL_COLOR_BUFFER_BIT  | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(shaderProgram);
 	glm::mat4 projection(1.0);
-	projection = glm::perspective(float(60.0f*DEG_TO_RADIAN),800.0f/600.0f,1.0f,50000.0f);
+	projection = glm::perspective(float(60.0f*DEG_TO_RADIAN), 800.0f / 600.0f, 1.0f, 50000.0f);
 	rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(projection));
 
 
 	GLfloat scale(1.0f); // just to allow easy scaling of complete scene
-	
+
 	glm::mat4 modelview(1.0); // set base position for scene
 	mvStack.push(modelview);
 
-	at = moveForward(eye,r,1.0f);
-	mvStack.top() = glm::lookAt(eye,at,up);
+	at = moveForward(eye, r, 1.0f);
+	mvStack.top() = glm::lookAt(eye, at, up);
 
-	
+
 	///////////Skybox
 	glDisable(GL_CULL_FACE); // disable culling and depth test
 	glDisable(GL_DEPTH_TEST);
@@ -558,7 +511,7 @@ void draw(SDL_Window * window) {
 
 	glEnable(GL_CULL_FACE); // enable culling and depth test to draw rest of scene
 	glEnable(GL_DEPTH_TEST);
-	
+
 	/////////////////////////////////////////
 
 	glUseProgram(shaderProgram);
@@ -567,17 +520,44 @@ void draw(SDL_Window * window) {
 	rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(projection));
 	glDepthMask(GL_TRUE); // make sure depth test is on
 
-	// draw a cube for ground plane
+						  // draw a cube for ground plane
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	mvStack.push(mvStack.top());
 	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(0.0f, -0.1f, 0.0f));
-	mvStack.top() = glm::scale(mvStack.top(),glm::vec3(20.0f, 0.1f, 20.0f));
+	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(20.0f, 0.1f, 20.0f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
 	rt3d::setMaterial(shaderProgram, material0);
-	rt3d::drawIndexedMesh(meshObjects[0],meshIndexCount,GL_TRIANGLES);
+	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
 	mvStack.pop();
 
-	//Draw the car
+
+	// Animate the md2 model, and update the mesh with new vertex data
+	tmpModel.Animate(currentAnim, 1.0f);
+	cout << "Current animaiton" << currentAnim << endl;
+	rt3d::updateMesh(meshObjects[1], RT3D_VERTEX, tmpModel.getAnimVerts(), tmpModel.getVertDataSize());
+
+	// draw the hobgoblin
+	//glm::vec4 hobgoblinLightPos(hobgoblinPos.x, hobgoblinPos.y + 1.0, hobgoblinPos.z, 1.0f);
+	//hobgoblinLightPos = hobgoblinLightPos*mvStack.top();
+	////light0.position[0] = hobgoblinPos.x;.
+	////light0.position[1] = hobgoblinPos.y;
+	////light0.position[3] = hobgoblinPos.z;
+	//rt3d::setLightPos(shaderProgram, glm::value_ptr(hobgoblinLightPos));
+	//glCullFace(GL_FRONT);
+	//glBindTexture(GL_TEXTURE_2D, textures[1]);
+	//rt3d::materialStruct tmpMaterial = material1;
+	//rt3d::setMaterial(shaderProgram, tmpMaterial);
+	//mvStack.push(mvStack.top());
+	//mvStack.top() = glm::translate(mvStack.top(), glm::vec3(hobgoblinPos.x, hobgoblinPos.y, hobgoblinPos.z));
+	//mvStack.top() = glm::rotate(mvStack.top(), float(90.0f*DEG_TO_RADIAN), glm::vec3(-1.0f, 0.0f, 0.0f));
+	//mvStack.top() = glm::rotate(mvStack.top(), float((r-90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, -1.0f));
+	//mvStack.top() = glm::scale(mvStack.top(),glm::vec3(scale*0.05, scale*0.05, scale*0.05));
+	//rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+	//rt3d::drawMesh(meshObjects[1], md2VertCount, GL_TRIANGLES);
+	//mvStack.pop();
+	//glCullFace(GL_BACK);
+
+	//Draw the alien
 	glCullFace(GL_FRONT);
 	glBindTexture(GL_TEXTURE_2D, textures[2]);
 	rt3d::materialStruct tmpMaterial1 = material1;
@@ -588,18 +568,70 @@ void draw(SDL_Window * window) {
 	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(scale*-1.5f, scale*-1.5f, scale*-1.5f));
 	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
 	rt3d::drawMesh(meshObjects[2], md2VertCount, GL_TRIANGLES);
-
 	mvStack.pop();
 	glCullFace(GL_BACK);
-	
-	// Animate the md2 model, and update the mesh with new vertex data
-	/*tmpModel.Animate(currentAnim,1.0f);*/
-	/*cout << "Current animaiton" << currentAnim << endl;*/
-	//rt3d::updateMesh(meshObjects[1],RT3D_VERTEX,tmpModel.getAnimVerts(),tmpModel.getVertDataSize());
+
+	/*
+	// remember to use at least one pop operation per push...
+	mvStack.pop(); // initial matrix
+	glDepthMask(GL_TRUE);
 
 
-	/*mvStack.pop();*/
-    SDL_GL_SwapWindow(window); // swap buffers
+
+
+	projection = glm::perspective(float(90.0f*DEG_TO_RADIAN), 80.0f / 60.0f, 1.0f, 50.0f);
+	rt3d::setUniformMatrix4fv(shaderProgram, "projection", glm::value_ptr(projection));
+
+	modelview=glm::mat4(1.0); // set base position for scene
+	mvStack.push(modelview);
+
+	//Miniat = moveForward(Minieye, r, 1.0f);
+	Miniat = at;
+	Minieye = glm::vec3(hobgoblinPos.x, hobgoblinPos.y + 19.0f, hobgoblinPos.z);
+	mvStack.top() = glm::lookAt(Minieye, Miniat, Miniup);
+
+	// draw a cube for ground plane for the Minimap
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
+	mvStack.push(mvStack.top());
+	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(0.0f, -0.1f, 0.0f));
+	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(20.0f, 0.1f, 20.0f));
+	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+	rt3d::setMaterial(shaderProgram, material0);
+	rt3d::drawIndexedMesh(meshObjects[0], meshIndexCount, GL_TRIANGLES);
+	mvStack.pop();
+
+
+	// draw the hobgoblin for the Minimap
+	glCullFace(GL_FRONT);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	rt3d::setMaterial(shaderProgram, tmpMaterial);
+	mvStack.push(mvStack.top());
+	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(hobgoblinPos.x, hobgoblinPos.y, hobgoblinPos.z));
+	mvStack.top() = glm::rotate(mvStack.top(), float(90.0f*DEG_TO_RADIAN), glm::vec3(-1.0f, 0.0f, 0.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float((r - 90.0f)*DEG_TO_RADIAN), glm::vec3(0.0f, 0.0f, -1.0f));
+	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(scale*0.05, scale*0.05, scale*0.05));
+	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+	rt3d::drawMesh(meshObjects[1], md2VertCount, GL_TRIANGLES);
+	mvStack.pop();
+	glCullFace(GL_BACK);
+
+	//Draw the alien for the Minimap
+	glCullFace(GL_FRONT);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	rt3d::setMaterial(shaderProgram, tmpMaterial1);
+	mvStack.push(mvStack.top());
+	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(5.0f, 1.2f, -5.0f));
+	mvStack.top() = glm::rotate(mvStack.top(), float(90.0f*DEG_TO_RADIAN), glm::vec3(-1.0f, 0.0f, 0.0f));
+	mvStack.top() = glm::scale(mvStack.top(), glm::vec3(scale*0.05, scale*0.05, scale*0.05));
+	rt3d::setUniformMatrix4fv(shaderProgram, "modelview", glm::value_ptr(mvStack.top()));
+	rt3d::drawMesh(meshObjects[2], md2VertCount, GL_TRIANGLES);
+	mvStack.pop();
+	glCullFace(GL_BACK);
+
+*/
+
+	mvStack.pop();
+	SDL_GL_SwapWindow(window); // swap buffers
 }
 
 
