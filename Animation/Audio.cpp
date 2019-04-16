@@ -32,7 +32,7 @@ void Audio::LoadSample(char * filename)
 																	// Checks if a sample, stream, or MOD music is active or stalled
 		/*if (BASS_ChannelIsActive(ch) == BASS_ACTIVE_STOPPED)
 		{*/
-			BASS_ChannelPlay(ch, FALSE);															// Starts (or resumes) playback of a sample, stream, MOD music, or recording.
+			/*BASS_ChannelPlay(ch, FALSE);*/															// Starts (or resumes) playback of a sample, stream, MOD music, or recording.
 			
 		/*}*/
 
