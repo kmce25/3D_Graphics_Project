@@ -1,4 +1,3 @@
-#pragma once
 /*
 BASS 2.4 C/C++ header file
 Copyright (c) 1999-2014 Un4seen Developments Ltd.
